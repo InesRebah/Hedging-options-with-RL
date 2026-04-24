@@ -59,7 +59,7 @@ class DRL:
                 print(info)
                 with np.printoptions(precision=2, suppress=True):
                     print("episode: {} | final wealth: {:.2f}; so far mean and variance of final wealth was {} and {}".format(i, w_T, w_T_mean, w_T_var))
-                    print("episode: {} | so far Y(0): {:.2f}".format(i, -w_T_mean + self.ra_c * np.sqrt(w_T_var)))
+                    print("episode: {} | so far Y(0): {:.2f}".format(i, -w_T_mean + self.rac * np.sqrt(w_T_var)))
                     print("episode: {} | rewards: {}".format(i, np.array(reward_store)))
                     print("episode: {} | action taken: {}".format(i, np.array(action_store)))
                     print("episode: {} | deltas {}".format(i, self.env.delta_path[path_row] * 100))
