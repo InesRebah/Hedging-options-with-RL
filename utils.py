@@ -159,7 +159,22 @@ def bs_call(iv, T, S, K, r, q):
     return bs_price, bs_delta
 
 
-def get_sim_path_sabr(M, freq, np_seed, num_sim):
+def get_sim_path_sabr(
+                        M,
+                        freq,       # trading freq per day
+                        np_seed,
+                        num_sim,
+                        mu=0.05,
+                        vol=0.2,
+                        beta=1.0,
+                        rho=-0.4,
+                        volvol=0.6,
+                        S=100,
+                        K=100,
+                        r=0,
+                        q=0,
+                        ds=0.001,
+                    ):
     """ Return simulated data: a tuple of four arrays
         M: initial time to maturity
         freq: trading freq in unit of day, e.g. freq=2: every 2 day; freq=0.5 twice a day;
@@ -174,8 +189,6 @@ def get_sim_path_sabr(M, freq, np_seed, num_sim):
     # set the np random seed
     np.random.seed(np_seed)
 
-    # Trading Freq per day; passed from function parameter
-    # freq = 2
 
     # Annual Trading Day
     T = 250
@@ -191,30 +204,6 @@ def get_sim_path_sabr(M, freq, np_seed, num_sim):
 
     # Number of simulations; passed from function parameter
     # num_sim = 1000000
-
-    # Annual Return
-    mu = 0.05
-
-    # Annual Volatility
-    vol = 0.2
-
-    # Initial Asset Value
-    S = 100
-
-    # Option Strike Price
-    K = 100
-
-    # Annual Risk Free Rate
-    r = 0
-
-    # Annual Dividend
-    q = 0
-
-    # SABR parameters
-    beta = 1
-    rho = -0.4
-    volvol = 0.6
-    ds = 0.001
 
     # asset price 2-d array; sabr_vol
     print("1. generate asset price paths (sabr)")
