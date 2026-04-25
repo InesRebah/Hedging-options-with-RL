@@ -1,0 +1,17 @@
+Num GPUs Available: 1
+1. generate asset price paths (sabr)
+2. generate BS price, BS delta, and Bartlett delta
+simulation done!
+
+
+***
+Testing RL agent (checkpoint 20k)...
+testing...
+
+====== FINAL RESULTS ======
+Mean cost: 58.2943
+Std cost: 295.8088
+Skew cost: 1.8179
+Kurt cost: 6.5508
+J cost: 502.1640
+Median cost: -67.4845
