@@ -10,9 +10,9 @@ The code requires gym (0.12.1), tensorflow (1.13.1), and keras (2.3.1).
 
 ## Usage
 The analysis and discussion of the paper methodology and results are extended over three main branches as reported in the folders : 
-1. Reproduction and Trading Costs : Reproduction and robustness tests of the paper results. Additionaly, the transaction costs assumed constant k = 0.01 in the paper and results are reproduced with stochastic trading costs booth independant and correlated with the spot price. <br>
-  Train by running ddpg_per.py with model specification. It automatically stores model weights across diffrent checkpoints. <br>
-  Test and plots reproduction in notebook plot_notebook.ipynb
+1. Reproduction and Trading Costs : Reproduction and robustness tests of the paper results. Additionaly, the transaction costs are assumed constant k = 0.01 in the paper. Results are reproduced with stochastic trading costs both independant and correlated with the spot price. <br>
+  Train by running ddpg_per.py with wanted model specification. This automatically stores model weights across diffrent checkpoints. <br>
+  Test and reproduce results and plots with the code in the notebook plot_notebook.ipynb
 3. Objective Function :
 
 4. Asset classes : 
