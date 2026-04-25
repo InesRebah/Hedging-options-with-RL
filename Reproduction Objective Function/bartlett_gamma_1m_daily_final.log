@@ -1,0 +1,76 @@
+/Users/saouiris/Desktop/DEEP-RL/Hedging-options-with-RL/utils.py:135: RuntimeWarning: invalid value encountered in divide
+  SABRIV = np.where(F == K, vol * B / (F ** (1 - beta)), A * B * Phi / Chi)
+/Users/saouiris/Desktop/DEEP-RL/Hedging-options-with-RL/utils.py:155: RuntimeWarning: divide by zero encountered in divide
+  d1 = (np.log(S / K) + (r - q + iv * iv / 2) * T) / (iv * np.sqrt(T))
+WARNING:absl:At this time, the v2.11+ optimizer `tf.keras.optimizers.Adam` runs slowly on M1/M2 Macs, please use the legacy Keras optimizer instead, located at `tf.keras.optimizers.legacy.Adam`.
+WARNING:absl:At this time, the v2.11+ optimizer `tf.keras.optimizers.Adam` runs slowly on M1/M2 Macs, please use the legacy Keras optimizer instead, located at `tf.keras.optimizers.legacy.Adam`.
+WARNING:absl:At this time, the v2.11+ optimizer `tf.keras.optimizers.Adam` runs slowly on M1/M2 Macs, please use the legacy Keras optimizer instead, located at `tf.keras.optimizers.legacy.Adam`.
+Num GPUs Available: 1
+Num GPUs Available: 1
+1. generate asset price paths (sabr)
+2. generate BS price, BS delta, and Bartlett delta
+simulation done!
+
+
+***
+Testing Bartlett hedge.
+testing...
+episode 0 | W_T=-89.27 | mean=-89.27 | var=0.00
+episode 1000 | W_T=-100.30 | mean=-248.67 | var=59384.40
+episode 2000 | W_T=-158.75 | mean=-251.55 | var=58492.54
+episode 3000 | W_T=-162.67 | mean=-249.17 | var=59638.22
+episode 4000 | W_T=-13.86 | mean=-250.69 | var=60210.29
+episode 5000 | W_T=-282.02 | mean=-253.95 | var=60629.46
+episode 6000 | W_T=-93.56 | mean=-254.27 | var=60191.34
+episode 7000 | W_T=-281.96 | mean=-255.02 | var=60730.28
+episode 8000 | W_T=-16.39 | mean=-255.91 | var=60963.54
+episode 9000 | W_T=-58.30 | mean=-255.05 | var=60722.94
+episode 10000 | W_T=-152.08 | mean=-254.48 | var=60644.38
+episode 11000 | W_T=43.09 | mean=-254.79 | var=60679.19
+episode 12000 | W_T=-253.49 | mean=-254.89 | var=60981.97
+episode 13000 | W_T=-102.07 | mean=-254.69 | var=60900.02
+episode 14000 | W_T=-154.11 | mean=-255.42 | var=61151.95
+episode 15000 | W_T=-21.13 | mean=-256.35 | var=61414.39
+episode 16000 | W_T=-95.95 | mean=-256.26 | var=61302.51
+episode 17000 | W_T=-141.04 | mean=-257.16 | var=61596.38
+episode 18000 | W_T=-155.10 | mean=-257.55 | var=62085.94
+episode 19000 | W_T=-62.57 | mean=-256.71 | var=61786.43
+episode 20000 | W_T=38.34 | mean=-257.20 | var=61929.15
+episode 21000 | W_T=-254.67 | mean=-256.92 | var=61919.32
+episode 22000 | W_T=-141.75 | mean=-257.25 | var=61999.26
+episode 23000 | W_T=-223.76 | mean=-256.93 | var=62008.21
+episode 24000 | W_T=-109.14 | mean=-257.42 | var=61789.25
+episode 25000 | W_T=-493.50 | mean=-257.00 | var=61552.00
+episode 26000 | W_T=-524.47 | mean=-257.41 | var=61683.73
+episode 27000 | W_T=4.04 | mean=-257.36 | var=61691.41
+episode 28000 | W_T=31.12 | mean=-257.48 | var=61739.95
+episode 29000 | W_T=-1204.25 | mean=-257.81 | var=61650.72
+episode 30000 | W_T=-254.13 | mean=-258.13 | var=61638.88
+episode 31000 | W_T=-187.16 | mean=-257.85 | var=61533.73
+episode 32000 | W_T=-389.12 | mean=-257.96 | var=61467.50
+episode 33000 | W_T=-141.39 | mean=-258.09 | var=61498.82
+episode 34000 | W_T=-188.31 | mean=-258.21 | var=61579.59
+episode 35000 | W_T=-279.83 | mean=-258.03 | var=61490.60
+episode 36000 | W_T=-40.00 | mean=-258.47 | var=61590.63
+episode 37000 | W_T=-1056.69 | mean=-258.53 | var=61567.35
+episode 38000 | W_T=-427.67 | mean=-258.59 | var=61568.00
+episode 39000 | W_T=-532.42 | mean=-258.55 | var=61392.94
+episode 40000 | W_T=-36.99 | mean=-258.63 | var=61503.15
+episode 41000 | W_T=-349.02 | mean=-258.45 | var=61438.35
+episode 42000 | W_T=-10.94 | mean=-258.25 | var=61366.77
+episode 43000 | W_T=-230.67 | mean=-258.32 | var=61461.03
+episode 44000 | W_T=-441.57 | mean=-258.30 | var=61498.22
+episode 45000 | W_T=-254.12 | mean=-258.14 | var=61388.76
+episode 46000 | W_T=-170.19 | mean=-258.06 | var=61380.25
+episode 47000 | W_T=-286.11 | mean=-258.29 | var=61440.40
+episode 48000 | W_T=-335.64 | mean=-258.43 | var=61486.06
+episode 49000 | W_T=33.16 | mean=-258.38 | var=61466.88
+episode 50000 | W_T=-412.00 | mean=-258.51 | var=61460.21
+
+====== FINAL RESULTS ======
+Mean cost: 258.5086
+Std cost: 247.9117
+Skew cost: 0.9757
+Kurt cost: 4.5172
+J cost: 630.3762
+Median cost: 218.4282

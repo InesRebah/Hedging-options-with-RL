@@ -1,0 +1,17 @@
+Num GPUs Available: 1
+1. generate asset price paths (sabr)
+2. generate BS price, BS delta, and Bartlett delta
+simulation done!
+
+
+***
+Testing delta actions.
+testing...
+
+====== FINAL RESULTS ======
+Mean cost: 241.3250
+Std cost: 244.9055
+Skew cost: 1.0001
+Kurt cost: 4.6317
+J cost: 608.7795
+Median cost: 201.0796
