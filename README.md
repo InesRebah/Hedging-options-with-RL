@@ -25,7 +25,7 @@ The analysis and discussion of the paper methodology and results are extended ov
 
 4. **Asset classes : Crypto & Equities (Jump-Diffusion) Extension**
    This extension explicitly exposes the Dual-Critic architecture to extreme market discontinuities by replacing standard continuous diffusions with the **Merton Jump-Diffusion** model. It tests the limits of the RL agent under severe liquidations (Crypto, $\lambda=12$) and biased market crashes (Equity, $\lambda=2$) against an analytically misspecified Black-Scholes delta (using effective volatility).
-   - Please refer to `Extension_Crypto_Jump.ipynb` (or `deep_hedging_projet.ipynb`).
+   - Please refer to `Extension_Crypto_Jump.ipynb`.
    - To avoid lengthy re-training loops, you can bypass the training cells and directly load the pre-trained weights (`.pt` files) available inside the `saved_models_ext/` directory to instantly evaluate the 100,000 out-of-sample paths.
 
 ## Credits
