@@ -27,7 +27,12 @@ class TradingEnv(gym.Env):
         num_contract=1,
         model_params=None,
         domain_randomization=False,
-        random_param_ranges=None
+        random_param_ranges=None, 
+        stochastic_tc=False,
+        lambda_bar=0.01,
+        kappa=1.0,
+        xi=0.3,
+        lambda_spot_corr=0
     ):
 
         self.sabr_flag = sabr_flag
@@ -51,6 +56,15 @@ class TradingEnv(gym.Env):
         # track time step within an episode
         self.t = None
 
+        self.stochastic_tc = stochastic_tc
+
+        # stochastic TC params
+        self.lambda_bar = lambda_bar
+        self.kappa = kappa
+        self.xi = xi
+        self.lambda_t = self.lambda_bar
+        self.lambda_spot_corr = lambda_spot_corr
+
         # action space
         if continuous_action_flag:
             self.action_space = spaces.Box(
@@ -62,7 +76,8 @@ class TradingEnv(gym.Env):
             self.num_action = num_contract * 100 + 1
             self.action_space = spaces.Discrete(self.num_action)
 
-        self.num_state = 3
+        self.num_state = 4 if self.stochastic_tc else 3        
+        
         self.state = []
 
         # step function initialization depending on cash_flow_flag
@@ -138,6 +153,7 @@ class TradingEnv(gym.Env):
         self.ttm_array = np.arange(self.init_ttm, -self.trade_freq, -self.trade_freq)
 
     def reset(self):
+        
         if self.domain_randomization:
             sampled_params = self._sample_model_params()
             self.current_model_params = sampled_params
@@ -150,12 +166,16 @@ class TradingEnv(gym.Env):
             self.sim_episode = (self.sim_episode + 1) % self.num_path
 
         self.t = 0
-
+        self.lambda_t = self.lambda_bar
+        
         price = self.path[self.sim_episode, self.t]
         position = 0
         ttm = self.ttm_array[self.t]
 
-        self.state = [price, position, ttm]
+        if self.stochastic_tc:
+            self.state = [price, position, ttm, self.lambda_t]
+        else:
+            self.state = [price, position, ttm]
 
         return self.state
 
@@ -190,31 +210,92 @@ class TradingEnv(gym.Env):
 
     def step_profit_loss(self, action):
         """
-        profit loss period reward
+        Profit-loss period reward with optional stochastic transaction costs.
+        If stochastic_tc=True and lambda_spot_corr != 0, transaction-cost shocks
+        are correlated with stock moves.
         """
 
         current_price = self.state[0]
         current_option_price = self.option_price_path[self.sim_episode, self.t]
         current_position = self.state[1]
 
-        self.t = self.t + 1
+        # Move one time step forward
+        self.t += 1
 
         price = self.path[self.sim_episode, self.t]
         option_price = self.option_price_path[self.sim_episode, self.t]
         position = action
         ttm = self.ttm_array[self.t]
 
-        self.state = [price, position, ttm]
+        if self.stochastic_tc:
+            dt = self.trade_freq / 200
 
-        reward = (price - current_price) * position - np.abs(current_position - position) * current_price * self.spread
+            # realized stock shock proxy
+            stock_return = np.log(price / current_price)
+            z_s = stock_return / (np.sqrt(dt) + 1e-8)
+
+            # clip for numerical stability
+            z_s = np.clip(z_s, -5.0, 5.0)
+
+            eps = self.np_random.normal()
+            rho = self.lambda_spot_corr
+
+            z_lambda = rho * z_s + np.sqrt(1.0 - rho ** 2) * eps
+
+            self.lambda_t = (
+                self.lambda_t
+                + self.kappa * (self.lambda_bar - self.lambda_t) * dt
+                + self.xi * self.lambda_t * np.sqrt(dt) * z_lambda
+            )
+
+            self.lambda_t = max(self.lambda_t, 1e-6)
+            tc_rate = self.lambda_t
+
+        else:
+            tc_rate = self.spread
+
+        transaction_cost = (
+            np.abs(current_position - position)
+            * current_price
+            * tc_rate
+        )
+
+        reward = (
+            (price - current_price) * position
+            - transaction_cost
+        )
 
         if self.t == self.num_period - 1:
             done = True
-            reward = reward - (max(price - self.strike_price, 0) - current_option_price) * self.num_contract * 100 - position * price * self.spread
+
+            liquidation_cost = np.abs(position) * price * tc_rate
+
+            reward = (
+                reward
+                - (max(price - self.strike_price, 0) - current_option_price)
+                * self.num_contract
+                * 100
+                - liquidation_cost
+            )
         else:
             done = False
-            reward = reward - (option_price - current_option_price) * self.num_contract * 100
 
-        info = {"path_row": self.sim_episode, "model_params": self.current_model_params}
+            reward = (
+                reward
+                - (option_price - current_option_price)
+                * self.num_contract
+                * 100
+            )
+
+        if self.stochastic_tc:
+            self.state = [price, position, ttm, self.lambda_t]
+        else:
+            self.state = [price, position, ttm]
+
+        info = {
+            "path_row": self.sim_episode,
+            "model_params": self.current_model_params,
+            "tc_rate": tc_rate,
+        }
 
         return self.state, float(np.asarray(reward).reshape(-1)[0]), done, info

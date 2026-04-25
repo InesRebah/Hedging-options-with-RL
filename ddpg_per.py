@@ -9,7 +9,7 @@ from drl import DRL
 from envs import TradingEnv
 from replay_buffer import PrioritizedReplayBuffer
 from schedules import LinearSchedule
-
+import pandas as pd
 
 gpus = tf.config.list_physical_devices("GPU")
 print("Num GPUs Available:", len(gpus))
@@ -58,7 +58,7 @@ class DDPG(DRL):
         self.rac = 1.5
 
         self.epsilon = 1.0
-        self.epsilon_decay = 0.99994
+        self.epsilon_decay = 0.9997    #0.99994 for 50k we adapt to 20k
         self.epsilon_min = 0.1
 
         self.batch_size = 128
@@ -378,60 +378,118 @@ if __name__ == "__main__":
 
     BASELINE_SABR = {"mu": 0.05, "vol": 0.20, "volvol": 0.60, "beta": 1.0, "rho": -0.4}
 
-    RANDOM_SABR_RANGES = {
-        "mu": [0.05],
-        "vol": [0.15, 0.20, 0.25, 0.30],
-        "volvol": [0.4, 0.6, 0.8],
-        "beta": [1.0],
-        "rho": [-0.4],
-    }
+    # RANDOM_SABR_RANGES = {
+    #     "mu": [0.05],
+    #     "vol": [0.15, 0.20, 0.25, 0.30],
+    #     "volvol": [0.4, 0.6, 0.8],
+    #     "beta": [1.0],
+    #     "rho": [-0.4],
+    # }
 
-    FREQS = {"daily": 1, "every2days": 2, "every3days": 3, "weekly": 5}
+    # FREQS = {"daily": 1, "every2days": 2, "every3days": 3, "weekly": 5}
 
     TRAIN_EPISODES = 50001
     INIT_TTM = 20
     SPREAD = 0.01
     NUM_CONTRACT = 1
+    freq_name = 'daily'
 
-    for freq_name, freq_val in FREQS.items():
-        print(f"\n{'=' * 60}\nTRAINING: {freq_name}\n{'=' * 60}")
+    print(f"\n{'=' * 60}\nTRAINING: {freq_name}\n{'=' * 60}")
 
-        baseline_env = TradingEnv(
-            continuous_action_flag=True,
-            sabr_flag=True,
-            dg_random_seed=1,
-            init_ttm=INIT_TTM,
-            trade_freq=freq_val,
-            spread=SPREAD,
-            num_contract=NUM_CONTRACT,
-            num_sim=50002,
-            model_params=BASELINE_SABR,
-            domain_randomization=False,
-        )
+    # baseline_env = TradingEnv(
+    #     continuous_action_flag=True,
+    #     sabr_flag=True,
+    #     dg_random_seed=1,
+    #     init_ttm=INIT_TTM,
+    #     trade_freq=freq_val,
+    #     spread=SPREAD,
+    #     num_contract=NUM_CONTRACT,
+    #     num_sim=50002,
+    #     model_params=BASELINE_SABR,
+    #     domain_randomization=False,
+    # )
 
-        ddpg = DDPG(baseline_env)
-        hist = ddpg.train(TRAIN_EPISODES, savetag=f"baseline_{freq_name}")
+    # ddpg = DDPG(baseline_env)
+    # hist = ddpg.train(TRAIN_EPISODES, savetag=f"baseline_{freq_name}")
 
-        if hasattr(ddpg, "savehistory"):
-            ddpg.savehistory(hist, f"ddpg_baseline_{freq_name}.csv")
+    # if hasattr(ddpg, "savehistory"):
+    #     ddpg.savehistory(hist, f"ddpg_baseline_{freq_name}.csv")
 
-        rand_env = TradingEnv(
-            continuous_action_flag=True,
-            sabr_flag=True,
-            dg_random_seed=10,
-            init_ttm=INIT_TTM,
-            trade_freq=freq_val,
-            spread=SPREAD,
-            num_contract=NUM_CONTRACT,
-            num_sim=2000,
-            domain_randomization=True,
-            random_param_ranges=RANDOM_SABR_RANGES,
-        )
+    # rand_env = TradingEnv(
+    #     continuous_action_flag=True,
+    #     sabr_flag=True,
+    #     dg_random_seed=10,
+    #     init_ttm=INIT_TTM,
+    #     trade_freq=freq_val,
+    #     spread=SPREAD,
+    #     num_contract=NUM_CONTRACT,
+    #     num_sim=2000,
+    #     domain_randomization=True,
+    #     random_param_ranges=RANDOM_SABR_RANGES,
+    # )
 
-        ddpg_rand = DDPG(rand_env)
-        hist_rand = ddpg_rand.train(TRAIN_EPISODES, savetag=f"domain_randomized_{freq_name}")
+    # ddpg_rand = DDPG(rand_env)
+    # hist_rand = ddpg_rand.train(TRAIN_EPISODES, savetag=f"domain_randomized_{freq_name}")
 
-        if hasattr(ddpg_rand, "savehistory"):
-            ddpg_rand.savehistory(hist_rand, f"ddpg_domain_randomized_{freq_name}.csv")
+    # if hasattr(ddpg_rand, "savehistory"):
+    #     ddpg_rand.savehistory(hist_rand, f"ddpg_domain_randomized_{freq_name}.csv")
 
+    stoch_env = TradingEnv(
+        continuous_action_flag=True,
+        sabr_flag=True,
+        dg_random_seed=1,
+        init_ttm=INIT_TTM,
+        trade_freq=1,
+        num_contract=NUM_CONTRACT,
+        num_sim=20000,
+        model_params=BASELINE_SABR,
+        domain_randomization=False,
+
+        stochastic_tc=True,
+        lambda_bar=0.01,
+        kappa=1.0,
+        xi=0.3,
+        lambda_spot_corr=0.0,   # independent
+    )
+
+    ddpg = DDPG(stoch_env)
+
+    hist = ddpg.train(
+        TRAIN_EPISODES,
+        savetag=f"stochTC_indep_{freq_name}"
+    )
+
+    pd.DataFrame(hist).to_csv(
+        f"history/ddpg_baseline_{freq_name}_stochTC_indep.csv",
+        index=False
+    )
+
+    corr_env = TradingEnv(
+        continuous_action_flag=True,
+        sabr_flag=True,
+        dg_random_seed=1,
+        init_ttm=INIT_TTM,
+        trade_freq=1,
+        num_contract=NUM_CONTRACT,
+        num_sim=20000,
+        model_params=BASELINE_SABR,
+        domain_randomization=False,
+
+        stochastic_tc=True,
+        lambda_bar=0.01,
+        kappa=1.0,
+        xi=0.3,
+        lambda_spot_corr=-0.7,   # KEY PART
+    )
+
+    ddpg = DDPG(corr_env)
+
+    hist = ddpg.train(
+        TRAIN_EPISODES,
+        savetag=f"stochTC_corr_{freq_name}"
+    )
+    pd.DataFrame(hist).to_csv(
+        f"history/ddpg_baseline_{freq_name}stochTC_corr.csv",
+        index=False
+    )
     print("\nAll training runs completed.")
