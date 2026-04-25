@@ -378,61 +378,76 @@ if __name__ == "__main__":
 
     BASELINE_SABR = {"mu": 0.05, "vol": 0.20, "volvol": 0.60, "beta": 1.0, "rho": -0.4}
 
-    # RANDOM_SABR_RANGES = {
-    #     "mu": [0.05],
-    #     "vol": [0.15, 0.20, 0.25, 0.30],
-    #     "volvol": [0.4, 0.6, 0.8],
-    #     "beta": [1.0],
-    #     "rho": [-0.4],
-    # }
+    RANDOM_SABR_RANGES = {
+        "mu": [0.05],
+        "vol": [0.15, 0.20, 0.25, 0.30],
+        "volvol": [0.4, 0.6, 0.8],
+        "beta": [1.0],
+        "rho": [-0.4],
+    }
 
-    # FREQS = {"daily": 1, "every2days": 2, "every3days": 3, "weekly": 5}
-
-    TRAIN_EPISODES = 50001
+    TRAIN_EPISODES = 50001 # or 20000
     INIT_TTM = 20
     SPREAD = 0.01
     NUM_CONTRACT = 1
     freq_name = 'daily'
+    freq_val = 1
 
     print(f"\n{'=' * 60}\nTRAINING: {freq_name}\n{'=' * 60}")
+    
+    # ----------------------------------------------------------
+    # --------------- Fixed param Training ----------------------
+    # ----------------------------------------------------------
 
-    # baseline_env = TradingEnv(
-    #     continuous_action_flag=True,
-    #     sabr_flag=True,
-    #     dg_random_seed=1,
-    #     init_ttm=INIT_TTM,
-    #     trade_freq=freq_val,
-    #     spread=SPREAD,
-    #     num_contract=NUM_CONTRACT,
-    #     num_sim=50002,
-    #     model_params=BASELINE_SABR,
-    #     domain_randomization=False,
-    # )
+    baseline_env = TradingEnv(
+        continuous_action_flag=True,
+        sabr_flag=True,
+        dg_random_seed=1,
+        init_ttm=INIT_TTM,
+        trade_freq=freq_val,
+        spread=SPREAD,
+        num_contract=NUM_CONTRACT,
+        num_sim=50002,
+        model_params=BASELINE_SABR,
+        domain_randomization=False,
+    
+        stochastic_tc=False,
+        lambda_bar=0.01,
+        kappa=1.0,
+        xi=0.3,
+        lambda_spot_corr=0.0,   
+    )
 
-    # ddpg = DDPG(baseline_env)
-    # hist = ddpg.train(TRAIN_EPISODES, savetag=f"baseline_{freq_name}")
+    ddpg = DDPG(baseline_env)
+        
+    # ----------------------------------------------------------
+    # --------------- Domain randomization Training ------------
+    # ----------------------------------------------------------
 
-    # if hasattr(ddpg, "savehistory"):
-    #     ddpg.savehistory(hist, f"ddpg_baseline_{freq_name}.csv")
+    rand_env = TradingEnv(
+        continuous_action_flag=True,
+        sabr_flag=True,
+        dg_random_seed=10,
+        init_ttm=INIT_TTM,
+        trade_freq=freq_val,
+        spread=SPREAD,
+        num_contract=NUM_CONTRACT,
+        num_sim=2000,
+        domain_randomization=True,
+        random_param_ranges=RANDOM_SABR_RANGES,
+    
+        stochastic_tc=False,
+        lambda_bar=0.01,
+        kappa=1.0,
+        xi=0.3,
+        lambda_spot_corr=0.0,   
+        )
 
-    # rand_env = TradingEnv(
-    #     continuous_action_flag=True,
-    #     sabr_flag=True,
-    #     dg_random_seed=10,
-    #     init_ttm=INIT_TTM,
-    #     trade_freq=freq_val,
-    #     spread=SPREAD,
-    #     num_contract=NUM_CONTRACT,
-    #     num_sim=2000,
-    #     domain_randomization=True,
-    #     random_param_ranges=RANDOM_SABR_RANGES,
-    # )
+    ddpg_rand = DDPG(rand_env)
 
-    # ddpg_rand = DDPG(rand_env)
-    # hist_rand = ddpg_rand.train(TRAIN_EPISODES, savetag=f"domain_randomized_{freq_name}")
-
-    # if hasattr(ddpg_rand, "savehistory"):
-    #     ddpg_rand.savehistory(hist_rand, f"ddpg_domain_randomized_{freq_name}.csv")
+    # ----------------------------------------------------------
+    # --------------- Stoch TC independent ---------------------
+    # ----------------------------------------------------------
 
     stoch_env = TradingEnv(
         continuous_action_flag=True,
@@ -463,6 +478,10 @@ if __name__ == "__main__":
         f"history/ddpg_baseline_{freq_name}_stochTC_indep.csv",
         index=False
     )
+    
+    # ----------------------------------------------------------
+    # --------------- Stoch TC correlated ---------------------
+    # ----------------------------------------------------------
 
     corr_env = TradingEnv(
         continuous_action_flag=True,
@@ -479,7 +498,7 @@ if __name__ == "__main__":
         lambda_bar=0.01,
         kappa=1.0,
         xi=0.3,
-        lambda_spot_corr=-0.7,   # KEY PART
+        lambda_spot_corr=-0.7,   # correlated
     )
 
     ddpg = DDPG(corr_env)
