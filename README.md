@@ -17,7 +17,8 @@ The analysis and discussion of the paper methodology and results are extended ov
    - *Test* and reproduce results and plots with the code in the notebook `plot_notebook.ipynb`.
 
 2. **Objective Function**
-   [Insert Sawsanne's description here if she provides one, e.g., Exploring higher-moment risk penalizations].
+   This folder contains the code related to the section *Extensions of the objective and reward specifications*, where we extend the framework of Cao et al. by modifying the reward structure and the objective to capture additional features of the hedging P&L distribution (higher-order moments, SMSE, and gamma penalization). See the README inside the folder for details.
+
 
 3. **Asset classes : FX & Commodities Extension**
    To reproduce the experiments on Foreign Exchange (FX) and Commodities, please refer to the folder: `Reproduction_FX&Commodities_Exp/`. 
