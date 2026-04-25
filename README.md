@@ -25,6 +25,5 @@ Detailed instructions, including parameter settings and execution steps, are pro
 
 ## Credits
 
-* The code structure is adapted from [@xiaochus](https://github.com/xiaochus)'s github project [Deep-Reinforcement-Learning-Practice](https://github.com/xiaochus/Deep-Reinforcement-Learning-Practice).
+* The code structure is adapted from [@eijoac](https://github.com/eijoac)'s github project [Deep Hedging with Reinforcement Learning](https://github.com/tdmdal/rl-hedge-2019).
 
-* The implementation of prioritized experience replay buffer is taken from OpenAI [Baselines](https://github.com/openai/baselines).
