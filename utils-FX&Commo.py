@@ -1,18 +1,5 @@
 """ Utility Functions """
 
-'''
-utils.py sert à générer toutes les données financières utilisées par l’environnement RL :
-1. simuler des trajectoires de prix S_t
-2. calculer le prix de l’option V_t
-3. calculer le delta Black-Scholes
-4. simuler le modèle SABR / volatilité stochastique
-5. calculer le delta de Bartlett
-
-Donc ce fichier correspond aux sections 4 et 5 du papier :
-section 4 : GBM + Black-Scholes ;
-section 5 : SABR / volatilité stochastique + implied vol + Bartlett delta.
-fct: brownian_sim, bs_call, get_sim_path, sabr_sim, sabr_implied_vol, bartlett, get_sim_path_sabr
-'''
 import random
 import numpy as np
 from scipy.stats import norm
@@ -32,15 +19,6 @@ def brownian_sim(num_path, num_period, mu, std, init_p, dt):
         )
     return a_price
 
-
-# BSM Call Option Pricing Formula & BS Delta formula
-# T here is time to maturity
-# def bs_call(iv, T, S, K, r, q):
-#     d1 = (np.log(S / K) + (r - q + iv * iv / 2) * T) / (iv * np.sqrt(T))
-#     d2 = d1 - iv * np.sqrt(T)
-#     bs_price = S * np.exp(-q * T) * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
-#     bs_delta = np.exp(-q * T) * norm.cdf(d1)
-#     return bs_price, bs_delta
 
 def bs_call(iv, T, S, K, r, q):
     T_safe = np.maximum(T, 1e-8)
