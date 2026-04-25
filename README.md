@@ -17,10 +17,11 @@ The analysis and discussion of the paper methodology and results are extended ov
       Test and reproduce results and plots with the code in the notebook plot_notebook.ipynb
 3. Objective Function :
 
-4. Asset classes : 
-4.1 : FX & Commodities Extension
+4. Asset classes : FX & Commodities Extension
 To reproduce the experiments on Foreign Exchange (FX) and Commodities, please refer to the folder:`Reproduction_FX&Commodities_Exp/`
 Detailed instructions, including parameter settings and execution steps, are provided in the README file within this folder.
+
+6. Asset classes : Crypto & Equities Extension 
 
 ## Credits
 
